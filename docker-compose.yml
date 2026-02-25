@@ -1,0 +1,44 @@
+services:
+  mariadb:
+    build: ./mariadb
+    container_name: school_qr_db
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: school_qr
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"  # different port to avoid conflicts with local DB
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - qr_network
+
+  backend:
+    build: ./backend
+    container_name: school_qr_backend
+    depends_on:
+      - mariadb
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: school_qr
+    ports:
+      - "3000:3000"  # API
+      - "8080:8080"  # Admin dashboard
+    volumes:
+      - qr_images:/app/qr_codes
+    restart: unless-stopped
+    networks:
+      - qr_network
+
+volumes:
+  mariadb_data:
+  qr_images:
+
+networks:
+  qr_network:
+    driver: bridge

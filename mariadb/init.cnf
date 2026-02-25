@@ -1,0 +1,6 @@
+[mysqld]
+character-set-server = utf8mb4
+max_connections = 50
+
+[client]
+default-character-set = utf8mb4
